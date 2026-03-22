@@ -1,10 +1,398 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>byseren</title>
-  </head>
-  <body>
-    <h1>안녕하세요, Seren입니다 👋</h1>
-    <p>책, 영상, 그리고 배운 것들을 기록하는 공간입니다.</p>
-  </body>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>byseren</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f5f7; --text: #2a2535; --muted: #9b99a8;
+      --accent: #8b6cc8; --accent-light: #f0ecfa; --border: #e4e2ec;
+      --serif: 'DM Serif Display', Georgia, serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); font-weight: 300; line-height: 1.7; min-height: 100vh; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(247,245,252,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-family: var(--serif); font-size: 1.2rem; color: var(--text); cursor: pointer; }
+    .nav-links { display: flex; gap: 1.6rem; list-style: none; }
+    .nav-links a { font-size: 0.82rem; font-weight: 400; color: var(--muted); text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; transition: color 0.2s; cursor: pointer; }
+    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+
+    section { display: none; min-height: 100vh; padding: 100px 2rem 4rem; max-width: 720px; margin: 0 auto; animation: fadeIn 0.35s ease; }
+    section.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .home-intro { padding-top: 3rem; }
+    .home-label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 1.2rem; }
+    .home-title { font-family: var(--serif); font-size: clamp(2.8rem, 6vw, 4.2rem); line-height: 1.1; margin-bottom: 1.5rem; }
+    .home-title em { font-style: italic; color: var(--accent); }
+    .home-divider { width: 48px; height: 2px; background: var(--accent); margin-bottom: 2.5rem; }
+    .home-desc { font-size: 1.05rem; color: #555; max-width: 480px; line-height: 1.8; margin-bottom: 2.5rem; }
+    .home-tags { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .tag { background: var(--accent-light); color: var(--accent); font-size: 0.8rem; font-weight: 500; padding: 0.3rem 0.8rem; border-radius: 2rem; }
+
+    .section-header { margin-bottom: 3rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .section-label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 0.6rem; }
+    .section-title { font-family: var(--serif); font-size: 2.2rem; }
+
+    .book-item { padding: 1.8rem 0; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr auto; gap: 1rem; }
+    .book-title { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.3rem; line-height: 1.3; }
+    .book-author { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.6rem; }
+    .book-note { font-size: 0.9rem; color: #666; line-height: 1.7; }
+    .book-rating { font-size: 0.85rem; color: var(--accent); white-space: nowrap; padding-top: 0.2rem; }
+
+    .empty { text-align: center; padding: 4rem 2rem; color: var(--muted); }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.4; }
+    .empty p { font-size: 0.95rem; }
+
+    /* CALENDAR */
+    .cal-hint { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.6; }
+    .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
+    .cal-nav button { background: none; border: 1px solid var(--border); border-radius: 6px; width: 32px; height: 32px; cursor: pointer; font-size: 1rem; color: var(--muted); transition: all 0.15s; }
+    .cal-nav button:hover { border-color: var(--accent); color: var(--accent); }
+    .cal-month { font-family: var(--serif); font-size: 1.2rem; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .cal-dow { text-align: center; font-size: 0.72rem; letter-spacing: 0.06em; color: var(--muted); padding: 0.3rem 0; text-transform: uppercase; }
+    .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; border-radius: 6px; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; user-select: none; position: relative; }
+    .cal-day:hover { border-color: var(--accent); color: var(--accent); }
+    .cal-day.empty-day { cursor: default; pointer-events: none; }
+    .cal-day.today { border-color: var(--accent); color: var(--accent); font-weight: 500; }
+    .cal-day.read { background: var(--accent); color: #fff; font-weight: 500; border-color: transparent; }
+    .cal-day.read:hover { background: #6a4aaa; }
+    .cal-day.has-review::after { content: ''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: #f0b429; }
+    .cal-day.read.has-review::after { background: #fff; }
+
+    .cal-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; font-size: 0.8rem; color: var(--muted); align-items: center; }
+    .cal-legend span { display: flex; align-items: center; gap: 6px; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+    .legend-dot.review-dot { width: 6px; height: 6px; border-radius: 50%; background: #f0b429; }
+
+    .cal-stats { display: flex; gap: 1.5rem; margin-top: 1.5rem; }
+    .stat-box { flex: 1; background: var(--accent-light); border-radius: 10px; padding: 1rem 1.2rem; }
+    .stat-num { font-family: var(--serif); font-size: 1.8rem; color: var(--accent); line-height: 1; margin-bottom: 0.3rem; }
+    .stat-label { font-size: 0.78rem; color: var(--accent); opacity: 0.7; }
+
+    /* REVIEW SECTION */
+    .review-section { margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--border); }
+    .review-section-title { font-family: var(--serif); font-size: 1.6rem; margin-bottom: 0.4rem; }
+    .review-section-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.8rem; }
+
+    .review-form { background: var(--accent-light); border-radius: 12px; padding: 1.4rem; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.8rem; transition: box-shadow 0.2s; }
+    .review-form.highlighted { box-shadow: 0 0 0 2px var(--accent); }
+    .review-form-date-label { font-size: 0.78rem; color: var(--accent); font-weight: 500; letter-spacing: 0.04em; }
+    .review-form input, .review-form textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.9rem; font-family: var(--sans); font-size: 0.9rem; color: var(--text); outline: none; transition: border-color 0.15s; width: 100%; }
+    .review-form input:focus, .review-form textarea:focus { border-color: var(--accent); }
+    .review-form textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+    .review-form-row { display: flex; gap: 0.8rem; align-items: center; }
+    .star-input { display: flex; gap: 4px; align-items: center; }
+    .star-input span { font-size: 1.4rem; cursor: pointer; color: var(--border); transition: color 0.1s; line-height: 1; user-select: none; }
+    .star-input span.active { color: var(--accent); }
+    .review-submit { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.65rem 1.4rem; font-family: var(--sans); font-size: 0.88rem; font-weight: 500; cursor: pointer; align-self: flex-end; transition: opacity 0.15s; }
+    .review-submit:hover { opacity: 0.85; }
+
+    .review-list { display: flex; flex-direction: column; gap: 1rem; }
+    .review-item { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.4rem; transition: box-shadow 0.15s, transform 0.15s; }
+    .review-item:hover { box-shadow: 0 4px 16px rgba(124,92,191,0.1); transform: translateY(-2px); }
+    .review-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.4rem; gap: 1rem; }
+    .review-book-title { font-family: var(--serif); font-size: 1.1rem; line-height: 1.3; }
+    .review-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+    .review-stars { color: var(--accent); font-size: 0.85rem; white-space: nowrap; }
+    .review-date { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+    .review-text { font-size: 0.88rem; color: #666; line-height: 1.75; margin-top: 0.5rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .review-text.expanded { display: block; }
+    .review-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.8rem; }
+    .review-expand { font-size: 0.78rem; color: var(--accent); cursor: pointer; background: none; border: none; padding: 0; font-family: var(--sans); }
+    .review-expand:hover { text-decoration: underline; }
+    .review-delete { font-size: 0.75rem; color: var(--muted); cursor: pointer; background: none; border: none; padding: 0; font-family: var(--sans); }
+    .review-delete:hover { color: #c0392b; }
+    .review-empty { font-size: 0.9rem; color: var(--muted); padding: 1.5rem 0; }
+
+    footer { text-align: center; padding: 2rem; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--border); margin-top: 4rem; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <span class="nav-logo" onclick="showSection('home')">byseren</span>
+    <ul class="nav-links">
+      <li><a onclick="showSection('home')"     id="nav-home" class="active">Home</a></li>
+      <li><a onclick="showSection('reading')"  id="nav-reading">Reading</a></li>
+      <li><a onclick="showSection('learned')"  id="nav-learned">Learned</a></li>
+      <li><a onclick="showSection('blog')"     id="nav-blog">Blog</a></li>
+    </ul>
+  </nav>
+
+  <!-- HOME -->
+  <section id="home" class="active">
+    <div class="home-intro">
+      <p class="home-label">Hello, I'm Seren</p>
+      <h1 class="home-title">배우고 경험한<br>것들을 기록하는 <em>공간</em></h1>
+      <div class="home-divider"></div>
+      <p class="home-desc">책, 기술, 그밖에 살아가며 경험하고 배운 것들을 기록합니다.<br>완벽한 글보다는 솔직한 기록을 남깁니다.</p>
+      <div class="home-tags">
+        <span class="tag">🎮 게임 / IT</span>
+        <span class="tag">💼 사업개발</span>
+        <span class="tag">🎓 대학원</span>
+        <span class="tag">📈 투자 동아리</span>
+        <span class="tag">📚 독서</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEARNED -->
+  <section id="learned">
+    <div class="section-header">
+      <p class="section-label">Learning</p>
+      <h2 class="section-title">Learned</h2>
+    </div>
+    <div class="empty">
+      <div class="empty-icon">💡</div>
+      <p>영상, 수업, 콘텐츠에서 배운 것들을 기록하는 공간이에요.</p>
+    </div>
+  </section>
+
+  <!-- BLOG -->
+  <section id="blog">
+    <div class="section-header">
+      <p class="section-label">Writing</p>
+      <h2 class="section-title">Blog</h2>
+    </div>
+    <div class="empty">
+      <div class="empty-icon">✍️</div>
+      <p>자유롭게 끄적이는 공간이에요.</p>
+    </div>
+  </section>
+
+  <!-- READING -->
+  <section id="reading">
+    <div class="section-header">
+      <p class="section-label">Tracker</p>
+      <h2 class="section-title">Reading Calendar</h2>
+    </div>
+    <p class="cal-hint">📖 읽은 날을 클릭해 기록하세요. 날짜를 클릭하면 독서기록 입력창 날짜가 자동으로 설정돼요.</p>
+
+    <div class="cal-nav">
+      <button onclick="changeMonth(-1)">‹</button>
+      <span class="cal-month" id="cal-month-label"></span>
+      <button onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div class="cal-legend">
+      <span><div class="legend-dot" style="background:var(--accent)"></div>읽은 날</span>
+      <span><div class="legend-dot" style="border:1px solid var(--accent)"></div>오늘</span>
+      <span><div class="legend-dot review-dot"></div>독서기록 있음</span>
+    </div>
+    <div class="cal-stats">
+      <div class="stat-box">
+        <div class="stat-num" id="stat-month">0</div>
+        <div class="stat-label">이번 달 읽은 날</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">총 기록된 날</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="stat-reviews">0</div>
+        <div class="stat-label">독서기록 수</div>
+      </div>
+    </div>
+
+    <!-- REVIEW FORM -->
+    <div class="review-section">
+      <h3 class="review-section-title">독서기록</h3>
+      <p class="review-section-sub">달력에서 날짜를 클릭하면 자동으로 날짜가 입력돼요 📝</p>
+      <div class="review-form" id="review-form">
+        <div class="review-form-date-label" id="form-date-label">날짜를 선택해주세요</div>
+        <input type="text" id="rv-title" placeholder="책 제목"/>
+        <div class="review-form-row">
+          <input type="date" id="rv-date"/>
+          <div class="star-input" id="star-input">
+            <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+          </div>
+        </div>
+        <textarea id="rv-text" placeholder="감상문을 자유롭게 적어주세요..."></textarea>
+        <button class="review-submit" onclick="submitReview()">기록하기</button>
+      </div>
+      <div id="review-list"></div>
+    </div>
+  </section>
+
+  <footer>© 2026 byseren · built with GitHub Pages</footer>
+
+  <script>
+    function showSection(id) {
+      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.getElementById('nav-' + id).classList.add('active');
+      window.scrollTo(0, 0);
+      if (id === 'reading') { renderCal(); renderReviews(); }
+    }
+
+    const KEY = 'byseren_read_days';
+    const RV_KEY = 'byseren_reviews';
+    let curYear, curMonth, selectedStars = 0;
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function getReadDays() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
+    function saveReadDays(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
+    function getReviews() { try { return JSON.parse(localStorage.getItem(RV_KEY) || '[]'); } catch { return []; } }
+    function saveReviews(r) { localStorage.setItem(RV_KEY, JSON.stringify(r)); }
+
+    function selectDate(dateStr) {
+      // Set review form date
+      document.getElementById('rv-date').value = dateStr;
+      const d = new Date(dateStr + 'T00:00:00');
+      const label = d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+      document.getElementById('form-date-label').textContent = '📅 ' + label;
+
+      // Highlight form
+      const form = document.getElementById('review-form');
+      form.classList.add('highlighted');
+      setTimeout(() => form.classList.remove('highlighted'), 1200);
+
+      // Scroll to form
+      form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function toggleDay(dateStr) {
+      let days = getReadDays();
+      days = days.includes(dateStr) ? days.filter(d => d !== dateStr) : [...days, dateStr].sort();
+      saveReadDays(days);
+      selectDate(dateStr);
+      renderCal();
+    }
+
+    function renderCal() {
+      const today = new Date();
+      if (curYear === undefined) { curYear = today.getFullYear(); curMonth = today.getMonth(); }
+
+      document.getElementById('cal-month-label').textContent =
+        new Date(curYear, curMonth, 1).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' });
+
+      const grid = document.getElementById('cal-grid');
+      grid.innerHTML = '';
+
+      ['일','월','화','수','목','금','토'].forEach(d => {
+        const el = document.createElement('div');
+        el.className = 'cal-dow'; el.textContent = d;
+        grid.appendChild(el);
+      });
+
+      const firstDay = new Date(curYear, curMonth, 1).getDay();
+      const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
+      const readDays = getReadDays();
+      const reviews = getReviews();
+      const reviewDates = new Set(reviews.map(r => r.date));
+      const todayStr = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+
+      for (let i = 0; i < firstDay; i++) {
+        const el = document.createElement('div');
+        el.className = 'cal-day empty-day';
+        grid.appendChild(el);
+      }
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${curYear}-${pad(curMonth+1)}-${pad(d)}`;
+        const el = document.createElement('div');
+        el.className = 'cal-day';
+        el.textContent = d;
+        if (dateStr === todayStr) el.classList.add('today');
+        if (readDays.includes(dateStr)) el.classList.add('read');
+        if (reviewDates.has(dateStr)) el.classList.add('has-review');
+        el.onclick = () => toggleDay(dateStr);
+        grid.appendChild(el);
+      }
+
+      const monthDays = readDays.filter(d => d.startsWith(`${curYear}-${pad(curMonth+1)}`));
+      document.getElementById('stat-month').textContent = monthDays.length;
+      document.getElementById('stat-total').textContent = readDays.length;
+      document.getElementById('stat-reviews').textContent = reviews.length;
+    }
+
+    function changeMonth(dir) {
+      curMonth += dir;
+      if (curMonth < 0) { curMonth = 11; curYear--; }
+      if (curMonth > 11) { curMonth = 0; curYear++; }
+      renderCal();
+    }
+
+    // Star rating
+    document.getElementById('star-input').addEventListener('click', e => {
+      if (!e.target.dataset.v) return;
+      selectedStars = parseInt(e.target.dataset.v);
+      document.querySelectorAll('#star-input span').forEach(s => {
+        s.classList.toggle('active', parseInt(s.dataset.v) <= selectedStars);
+      });
+    });
+
+    // Default date = today
+    document.getElementById('rv-date').value = new Date().toISOString().split('T')[0];
+
+    function submitReview() {
+      const title = document.getElementById('rv-title').value.trim();
+      const date = document.getElementById('rv-date').value;
+      const text = document.getElementById('rv-text').value.trim();
+      if (!title || !date) { alert('책 제목과 날짜는 필수예요!'); return; }
+      const reviews = getReviews();
+      reviews.unshift({ id: Date.now(), title, date, stars: selectedStars, text });
+      saveReviews(reviews);
+      document.getElementById('rv-title').value = '';
+      document.getElementById('rv-text').value = '';
+      selectedStars = 0;
+      document.querySelectorAll('#star-input span').forEach(s => s.classList.remove('active'));
+      renderReviews();
+      renderCal();
+    }
+
+    function deleteReview(id) {
+      if (!confirm('삭제할까요?')) return;
+      saveReviews(getReviews().filter(r => r.id !== id));
+      renderReviews();
+      renderCal();
+    }
+
+    function renderReviews() {
+      const reviews = getReviews();
+      const list = document.getElementById('review-list');
+      if (!list) return;
+      if (reviews.length === 0) {
+        list.innerHTML = '<p class="review-empty">아직 독서기록이 없어요. 달력에서 날짜를 클릭해 시작해보세요!</p>';
+        return;
+      }
+      list.innerHTML = '<div class="review-list">' + reviews.map(r => {
+        const dateLabel = new Date(r.date + 'T00:00:00').toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+        const stars = r.stars ? '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars) : '';
+        const hasLongText = r.text && r.text.length > 80;
+        return `<div class="review-item">
+          <div class="review-item-header">
+            <span class="review-book-title">${r.title}</span>
+            <div class="review-meta">
+              ${stars ? `<span class="review-stars">${stars}</span>` : ''}
+              <span class="review-date">${dateLabel}</span>
+            </div>
+          </div>
+          ${r.text ? `<p class="review-text" id="rt-${r.id}">${r.text.replace(/\n/g, '<br>')}</p>` : ''}
+          <div class="review-footer">
+            ${hasLongText ? `<button class="review-expand" onclick="toggleExpand(${r.id}, this)">더 보기</button>` : '<span></span>'}
+            <button class="review-delete" onclick="deleteReview(${r.id})">삭제</button>
+          </div>
+        </div>`;
+      }).join('') + '</div>';
+    }
+
+    function toggleExpand(id, btn) {
+      const el = document.getElementById('rt-' + id);
+      if (!el) return;
+      el.classList.toggle('expanded');
+      btn.textContent = el.classList.contains('expanded') ? '접기' : '더 보기';
+    }
+
+    renderReviews();
+  </script>
+</body>
 </html>
