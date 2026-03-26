@@ -3,396 +3,595 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>byseren</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <title>이수련을 찾아서</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --bg: #f5f5f7; --text: #2a2535; --muted: #9b99a8;
-      --accent: #8b6cc8; --accent-light: #f0ecfa; --border: #e4e2ec;
-      --serif: 'DM Serif Display', Georgia, serif;
-      --sans: 'DM Sans', system-ui, sans-serif;
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Noto Sans KR', monospace;
+      color: #fff;
     }
-    html { scroll-behavior: smooth; }
-    body { background: var(--bg); color: var(--text); font-family: var(--sans); font-weight: 300; line-height: 1.7; min-height: 100vh; }
 
-    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(247,245,252,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 60px; display: flex; align-items: center; justify-content: space-between; }
-    .nav-logo { font-family: var(--serif); font-size: 1.2rem; color: var(--text); cursor: pointer; }
-    .nav-links { display: flex; gap: 1.6rem; list-style: none; }
-    .nav-links a { font-size: 0.82rem; font-weight: 400; color: var(--muted); text-decoration: none; letter-spacing: 0.06em; text-transform: uppercase; transition: color 0.2s; cursor: pointer; }
-    .nav-links a:hover, .nav-links a.active { color: var(--accent); }
+    h1 {
+      font-size: 1rem;
+      letter-spacing: 0.2em;
+      color: #a78bfa;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
 
-    section { display: none; min-height: 100vh; padding: 100px 2rem 4rem; max-width: 720px; margin: 0 auto; animation: fadeIn 0.35s ease; }
-    section.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .hint {
+      font-size: 0.72rem;
+      color: #6b7280;
+      margin-bottom: 12px;
+      letter-spacing: 0.08em;
+    }
 
-    .home-intro { padding-top: 3rem; }
-    .home-label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 1.2rem; }
-    .home-title { font-family: var(--serif); font-size: clamp(2.8rem, 6vw, 4.2rem); line-height: 1.1; margin-bottom: 1.5rem; }
-    .home-title em { font-style: italic; color: var(--accent); }
-    .home-divider { width: 48px; height: 2px; background: var(--accent); margin-bottom: 2.5rem; }
-    .home-desc { font-size: 1.05rem; color: #555; max-width: 480px; line-height: 1.8; margin-bottom: 2.5rem; }
-    .home-tags { display: flex; flex-wrap: wrap; gap: 0.6rem; }
-    .tag { background: var(--accent-light); color: var(--accent); font-size: 0.8rem; font-weight: 500; padding: 0.3rem 0.8rem; border-radius: 2rem; }
+    #game-wrap {
+      position: relative;
+      width: 560px;
+      height: 420px;
+      border: 3px solid #a78bfa;
+      box-shadow: 0 0 30px rgba(167,139,250,0.3);
+      overflow: hidden;
+      background: #0f172a;
+      image-rendering: pixelated;
+    }
 
-    .section-header { margin-bottom: 3rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
-    .section-label { font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 0.6rem; }
-    .section-title { font-family: var(--serif); font-size: 2.2rem; }
+    canvas {
+      display: block;
+      image-rendering: pixelated;
+      width: 560px;
+      height: 420px;
+    }
 
-    .book-item { padding: 1.8rem 0; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr auto; gap: 1rem; }
-    .book-title { font-family: var(--serif); font-size: 1.2rem; margin-bottom: 0.3rem; line-height: 1.3; }
-    .book-author { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.6rem; }
-    .book-note { font-size: 0.9rem; color: #666; line-height: 1.7; }
-    .book-rating { font-size: 0.85rem; color: var(--accent); white-space: nowrap; padding-top: 0.2rem; }
+    /* DIALOG BOX */
+    #dialog {
+      display: none;
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(15,23,42,0.97);
+      border-top: 2px solid #a78bfa;
+      padding: 14px 18px 12px;
+      z-index: 10;
+    }
 
-    .empty { text-align: center; padding: 4rem 2rem; color: var(--muted); }
-    .empty-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.4; }
-    .empty p { font-size: 0.95rem; }
+    #dialog-name {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #a78bfa;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
 
-    /* CALENDAR */
-    .cal-hint { font-size: 0.88rem; color: var(--muted); margin-bottom: 1.5rem; line-height: 1.6; }
-    .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem; }
-    .cal-nav button { background: none; border: 1px solid var(--border); border-radius: 6px; width: 32px; height: 32px; cursor: pointer; font-size: 1rem; color: var(--muted); transition: all 0.15s; }
-    .cal-nav button:hover { border-color: var(--accent); color: var(--accent); }
-    .cal-month { font-family: var(--serif); font-size: 1.2rem; }
-    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-    .cal-dow { text-align: center; font-size: 0.72rem; letter-spacing: 0.06em; color: var(--muted); padding: 0.3rem 0; text-transform: uppercase; }
-    .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; border-radius: 6px; cursor: pointer; transition: all 0.15s; border: 1px solid transparent; user-select: none; position: relative; }
-    .cal-day:hover { border-color: var(--accent); color: var(--accent); }
-    .cal-day.empty-day { cursor: default; pointer-events: none; }
-    .cal-day.today { border-color: var(--accent); color: var(--accent); font-weight: 500; }
-    .cal-day.read { background: var(--accent); color: #fff; font-weight: 500; border-color: transparent; }
-    .cal-day.read:hover { background: #6a4aaa; }
-    .cal-day.has-review::after { content: ''; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: #f0b429; }
-    .cal-day.read.has-review::after { background: #fff; }
+    #dialog-text {
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+      min-height: 40px;
+    }
 
-    .cal-legend { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem; font-size: 0.8rem; color: var(--muted); align-items: center; }
-    .cal-legend span { display: flex; align-items: center; gap: 6px; }
-    .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
-    .legend-dot.review-dot { width: 6px; height: 6px; border-radius: 50%; background: #f0b429; }
+    #dialog-next {
+      text-align: right;
+      font-size: 0.68rem;
+      color: #6b7280;
+      margin-top: 6px;
+      animation: blink 1s infinite;
+    }
 
-    .cal-stats { display: flex; gap: 1.5rem; margin-top: 1.5rem; }
-    .stat-box { flex: 1; background: var(--accent-light); border-radius: 10px; padding: 1rem 1.2rem; }
-    .stat-num { font-family: var(--serif); font-size: 1.8rem; color: var(--accent); line-height: 1; margin-bottom: 0.3rem; }
-    .stat-label { font-size: 0.78rem; color: var(--accent); opacity: 0.7; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-    /* REVIEW SECTION */
-    .review-section { margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--border); }
-    .review-section-title { font-family: var(--serif); font-size: 1.6rem; margin-bottom: 0.4rem; }
-    .review-section-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.8rem; }
+    /* QUIZ */
+    #quiz {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(15,23,42,0.97);
+      z-index: 20;
+      padding: 24px 20px;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-    .review-form { background: var(--accent-light); border-radius: 12px; padding: 1.4rem; margin-bottom: 2rem; display: flex; flex-direction: column; gap: 0.8rem; transition: box-shadow 0.2s; }
-    .review-form.highlighted { box-shadow: 0 0 0 2px var(--accent); }
-    .review-form-date-label { font-size: 0.78rem; color: var(--accent); font-weight: 500; letter-spacing: 0.04em; }
-    .review-form input, .review-form textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.9rem; font-family: var(--sans); font-size: 0.9rem; color: var(--text); outline: none; transition: border-color 0.15s; width: 100%; }
-    .review-form input:focus, .review-form textarea:focus { border-color: var(--accent); }
-    .review-form textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
-    .review-form-row { display: flex; gap: 0.8rem; align-items: center; }
-    .star-input { display: flex; gap: 4px; align-items: center; }
-    .star-input span { font-size: 1.4rem; cursor: pointer; color: var(--border); transition: color 0.1s; line-height: 1; user-select: none; }
-    .star-input span.active { color: var(--accent); }
-    .review-submit { background: var(--accent); color: #fff; border: none; border-radius: 8px; padding: 0.65rem 1.4rem; font-family: var(--sans); font-size: 0.88rem; font-weight: 500; cursor: pointer; align-self: flex-end; transition: opacity 0.15s; }
-    .review-submit:hover { opacity: 0.85; }
+    #quiz.show { display: flex; }
 
-    .review-list { display: flex; flex-direction: column; gap: 1rem; }
-    .review-item { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.4rem; transition: box-shadow 0.15s, transform 0.15s; }
-    .review-item:hover { box-shadow: 0 4px 16px rgba(124,92,191,0.1); transform: translateY(-2px); }
-    .review-item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.4rem; gap: 1rem; }
-    .review-book-title { font-family: var(--serif); font-size: 1.1rem; line-height: 1.3; }
-    .review-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
-    .review-stars { color: var(--accent); font-size: 0.85rem; white-space: nowrap; }
-    .review-date { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
-    .review-text { font-size: 0.88rem; color: #666; line-height: 1.75; margin-top: 0.5rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .review-text.expanded { display: block; }
-    .review-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.8rem; }
-    .review-expand { font-size: 0.78rem; color: var(--accent); cursor: pointer; background: none; border: none; padding: 0; font-family: var(--sans); }
-    .review-expand:hover { text-decoration: underline; }
-    .review-delete { font-size: 0.75rem; color: var(--muted); cursor: pointer; background: none; border: none; padding: 0; font-family: var(--sans); }
-    .review-delete:hover { color: #c0392b; }
-    .review-empty { font-size: 0.9rem; color: var(--muted); padding: 1.5rem 0; }
+    #quiz-title {
+      font-size: 0.75rem;
+      color: #a78bfa;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
 
-    footer { text-align: center; padding: 2rem; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--border); margin-top: 4rem; }
+    #quiz-question {
+      font-size: 0.8rem;
+      color: #e2e8f0;
+      line-height: 1.7;
+      text-align: center;
+      padding: 0 8px;
+    }
+
+    .quiz-items {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .quiz-item {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .quiz-item:hover { border-color: #a78bfa; color: #fff; background: #2d1f5e; }
+    .quiz-item.correct { border-color: #34d399; color: #34d399; background: #064e3b22; }
+    .quiz-item.wrong { border-color: #f87171; color: #f87171; background: #7f1d1d22; }
+
+    .quiz-item span.num {
+      color: #a78bfa;
+      font-weight: 700;
+      min-width: 16px;
+    }
+
+    #quiz-result {
+      text-align: center;
+      font-size: 0.82rem;
+      min-height: 20px;
+      color: #34d399;
+    }
+
+    #quiz-close {
+      background: #a78bfa;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 8px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      display: none;
+    }
+
+    #quiz-close:hover { background: #7c3aed; }
+
+    /* MINIMAP */
+    #minimap-label {
+      margin-top: 8px;
+      font-size: 0.65rem;
+      color: #4b5563;
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
 
-  <nav>
-    <span class="nav-logo" onclick="showSection('home')">byseren</span>
-    <ul class="nav-links">
-      <li><a onclick="showSection('home')"     id="nav-home" class="active">Home</a></li>
-      <li><a onclick="showSection('reading')"  id="nav-reading">Reading</a></li>
-      <li><a onclick="showSection('learned')"  id="nav-learned">Learned</a></li>
-      <li><a onclick="showSection('blog')"     id="nav-blog">Blog</a></li>
-    </ul>
-  </nav>
+<h1>🎮 이수련을 찾아서</h1>
+<p class="hint">방향키로 이동 · 건물에 가까이 가면 대화 시작</p>
 
-  <!-- HOME -->
-  <section id="home" class="active">
-    <div class="home-intro">
-      <p class="home-label">Hello, I'm Seren</p>
-      <h1 class="home-title">배우고 경험한<br>것들을 기록하는 <em>공간</em></h1>
-      <div class="home-divider"></div>
-      <p class="home-desc">책, 기술, 그밖에 살아가며 경험하고 배운 것들을 기록합니다.<br>완벽한 글보다는 솔직한 기록을 남깁니다.</p>
-      <div class="home-tags">
-        <span class="tag">🎮 게임 / IT</span>
-        <span class="tag">💼 사업개발</span>
-        <span class="tag">🎓 대학원</span>
-        <span class="tag">📈 투자 동아리</span>
-        <span class="tag">📚 독서</span>
-      </div>
-    </div>
-  </section>
+<div id="game-wrap">
+  <canvas id="c" width="560" height="420"></canvas>
 
-  <!-- LEARNED -->
-  <section id="learned">
-    <div class="section-header">
-      <p class="section-label">Learning</p>
-      <h2 class="section-title">Learned</h2>
-    </div>
-    <div class="empty">
-      <div class="empty-icon">💡</div>
-      <p>영상, 수업, 콘텐츠에서 배운 것들을 기록하는 공간이에요.</p>
-    </div>
-  </section>
+  <div id="dialog">
+    <div id="dialog-name"></div>
+    <div id="dialog-text"></div>
+    <div id="dialog-next">▼ 계속하려면 스페이스 또는 클릭</div>
+  </div>
 
-  <!-- BLOG -->
-  <section id="blog">
-    <div class="section-header">
-      <p class="section-label">Writing</p>
-      <h2 class="section-title">Blog</h2>
-    </div>
-    <div class="empty">
-      <div class="empty-icon">✍️</div>
-      <p>자유롭게 끄적이는 공간이에요.</p>
-    </div>
-  </section>
+  <div id="quiz">
+    <div id="quiz-title">🔍 나를 맞혀봐!</div>
+    <div id="quiz-question">아래 5가지 사실 중 <b style="color:#f59e0b">거짓말이 1개</b> 숨어있어요.<br>어떤 게 거짓일까요?</div>
+    <div class="quiz-items" id="quiz-items"></div>
+    <div id="quiz-result"></div>
+    <button id="quiz-close" onclick="closeQuiz()">계속 탐험하기 →</button>
+  </div>
+</div>
 
-  <!-- READING -->
-  <section id="reading">
-    <div class="section-header">
-      <p class="section-label">Tracker</p>
-      <h2 class="section-title">Reading Calendar</h2>
-    </div>
-    <p class="cal-hint">📖 읽은 날을 클릭해 기록하세요. 날짜를 클릭하면 독서기록 입력창 날짜가 자동으로 설정돼요.</p>
+<p id="minimap-label">KAIST 정보경영 · 게임 사업개발 · byseren.github.io</p>
 
-    <div class="cal-nav">
-      <button onclick="changeMonth(-1)">‹</button>
-      <span class="cal-month" id="cal-month-label"></span>
-      <button onclick="changeMonth(1)">›</button>
-    </div>
-    <div class="cal-grid" id="cal-grid"></div>
-    <div class="cal-legend">
-      <span><div class="legend-dot" style="background:var(--accent)"></div>읽은 날</span>
-      <span><div class="legend-dot" style="border:1px solid var(--accent)"></div>오늘</span>
-      <span><div class="legend-dot review-dot"></div>독서기록 있음</span>
-    </div>
-    <div class="cal-stats">
-      <div class="stat-box">
-        <div class="stat-num" id="stat-month">0</div>
-        <div class="stat-label">이번 달 읽은 날</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num" id="stat-total">0</div>
-        <div class="stat-label">총 기록된 날</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-num" id="stat-reviews">0</div>
-        <div class="stat-label">독서기록 수</div>
-      </div>
-    </div>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
 
-    <!-- REVIEW FORM -->
-    <div class="review-section">
-      <h3 class="review-section-title">독서기록</h3>
-      <p class="review-section-sub">달력에서 날짜를 클릭하면 자동으로 날짜가 입력돼요 📝</p>
-      <div class="review-form" id="review-form">
-        <div class="review-form-date-label" id="form-date-label">날짜를 선택해주세요</div>
-        <input type="text" id="rv-title" placeholder="책 제목"/>
-        <div class="review-form-row">
-          <input type="date" id="rv-date"/>
-          <div class="star-input" id="star-input">
-            <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
-          </div>
-        </div>
-        <textarea id="rv-text" placeholder="감상문을 자유롭게 적어주세요..."></textarea>
-        <button class="review-submit" onclick="submitReview()">기록하기</button>
-      </div>
-      <div id="review-list"></div>
-    </div>
-  </section>
+const W = 560, H = 420;
+const TILE = 28;
 
-  <footer>© 2026 byseren · built with GitHub Pages</footer>
+// ── MAP ──────────────────────────────────────────────
+// 0=floor, 1=wall, 2=grass, 3=water
+const COLS = W / TILE; // 20
+const ROWS = H / TILE; // 15
 
-  <script>
-    function showSection(id) {
-      document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-      document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      document.getElementById('nav-' + id).classList.add('active');
-      window.scrollTo(0, 0);
-      if (id === 'reading') { renderCal(); renderReviews(); }
+const MAP = [
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  [1,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,3,3,3,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,3,3,3,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+  [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+];
+
+// ── BUILDINGS ────────────────────────────────────────
+const buildings = [
+  {
+    x: 1, y: 5, w: 3, h: 3,
+    color: '#7c3aed', roofColor: '#a78bfa',
+    label: '프로필',
+    icon: '👤',
+    dialog: [
+      { name: '이수련', text: '안녕하세요! 저는 이수련이에요. KAIST 정보경영 대학원에 재학 중이에요.' },
+      { name: '이수련', text: '게임업계에서 사업개발을 하고 있어요. 다양한 경험을 쌓으며 살아왔답니다 😄' },
+      { name: '이수련', text: '저에 대해 더 알고 싶다면... 퀴즈 건물에 가보세요! 🎯' },
+    ]
+  },
+  {
+    x: 9, y: 1, w: 3, h: 3,
+    color: '#0f766e', roofColor: '#34d399',
+    label: '관심사',
+    icon: '🎮',
+    dialog: [
+      { name: '이수련', text: '제 관심사를 소개할게요! 게임을 정말 좋아해요. 최근에 가장 재밌게 플레이한 게임은 \'산나비\'예요 🎮' },
+      { name: '이수련', text: '독서도 좋아하고, 투자에도 관심이 많아요 📚📈' },
+      { name: '이수련', text: '그 외에도 숨겨진 취미가 있는데... 퀴즈를 풀면 알 수 있을지도요 😏' },
+    ]
+  },
+  {
+    x: 15, y: 5, w: 3, h: 3,
+    color: '#b45309', roofColor: '#fbbf24',
+    label: '퀴즈',
+    icon: '❓',
+    quiz: true,
+    dialog: [
+      { name: '???', text: '나에 대한 5가지 사실이 있어요. 그런데 하나는 거짓말이에요! 맞혀볼 수 있겠어요?' },
+    ]
+  },
+  {
+    x: 8, y: 9, w: 3, h: 3,
+    color: '#be185d', roofColor: '#f472b6',
+    label: '연락처',
+    icon: '💌',
+    dialog: [
+      { name: '이수련', text: '반가워요! 저와 이야기 나누고 싶다면 언제든 연락주세요 😊' },
+      { name: '이수련', text: 'GitHub: github.com/byseren' },
+    ]
+  },
+];
+
+// ── PLAYER ───────────────────────────────────────────
+const player = { x: 4 * TILE, y: 7 * TILE, speed: 2.5 };
+const keys = {};
+
+document.addEventListener('keydown', e => {
+  keys[e.key] = true;
+  if ((e.key === ' ' || e.key === 'Enter') && dialogOpen) nextDialog();
+});
+document.addEventListener('keyup', e => keys[e.key] = false);
+canvas.addEventListener('click', () => { if (dialogOpen) nextDialog(); });
+
+// ── DIALOG STATE ─────────────────────────────────────
+let dialogOpen = false;
+let dialogQueue = [];
+let dialogIdx = 0;
+let currentBuilding = null;
+
+function openDialog(building) {
+  currentBuilding = building;
+  dialogQueue = building.dialog;
+  dialogIdx = 0;
+  dialogOpen = true;
+  document.getElementById('dialog').style.display = 'block';
+  showDialogLine();
+}
+
+function showDialogLine() {
+  const line = dialogQueue[dialogIdx];
+  document.getElementById('dialog-name').textContent = line.name;
+  document.getElementById('dialog-text').textContent = line.text;
+}
+
+function nextDialog() {
+  dialogIdx++;
+  if (dialogIdx < dialogQueue.length) {
+    showDialogLine();
+  } else {
+    document.getElementById('dialog').style.display = 'none';
+    dialogOpen = false;
+    if (currentBuilding && currentBuilding.quiz) {
+      openQuiz();
     }
+    currentBuilding = null;
+  }
+}
 
-    const KEY = 'byseren_read_days';
-    const RV_KEY = 'byseren_reviews';
-    let curYear, curMonth, selectedStars = 0;
+// ── QUIZ ─────────────────────────────────────────────
+const quizItems = [
+  { text: '이수련은 어릴 때 스페인에서 살았던 적이 있다.', correct: true },
+  { text: '이수련의 꿈은 원래 물리학자였다.', correct: true },
+  { text: '이수련의 인생 게임은 <테라리아>다.', correct: true },
+  { text: '이수련은 사실 요리를 수준급으로 잘한다.', correct: true },
+  { text: '이수련의 작년 투자 수익률은 73%다.', correct: false },
+];
 
-    function pad(n) { return String(n).padStart(2, '0'); }
-    function getReadDays() { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } }
-    function saveReadDays(d) { localStorage.setItem(KEY, JSON.stringify(d)); }
-    function getReviews() { try { return JSON.parse(localStorage.getItem(RV_KEY) || '[]'); } catch { return []; } }
-    function saveReviews(r) { localStorage.setItem(RV_KEY, JSON.stringify(r)); }
+let quizAnswered = false;
 
-    function selectDate(dateStr) {
-      // Set review form date
-      document.getElementById('rv-date').value = dateStr;
-      const d = new Date(dateStr + 'T00:00:00');
-      const label = d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
-      document.getElementById('form-date-label').textContent = '📅 ' + label;
+function openQuiz() {
+  quizAnswered = false;
+  document.getElementById('quiz-result').textContent = '';
+  document.getElementById('quiz-close').style.display = 'none';
+  const list = document.getElementById('quiz-items');
+  list.innerHTML = quizItems.map((item, i) =>
+    `<div class="quiz-item" id="qi-${i}" onclick="answerQuiz(${i})">
+      <span class="num">${i+1}</span>
+      <span>${item.text}</span>
+    </div>`
+  ).join('');
+  document.getElementById('quiz').classList.add('show');
+}
 
-      // Highlight form
-      const form = document.getElementById('review-form');
-      form.classList.add('highlighted');
-      setTimeout(() => form.classList.remove('highlighted'), 1200);
+function answerQuiz(i) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const item = quizItems[i];
+  document.getElementById('quiz-items').querySelectorAll('.quiz-item').forEach((el, idx) => {
+    if (!quizItems[idx].correct) el.classList.add('wrong');
+    else el.classList.add('correct');
+  });
+  const result = document.getElementById('quiz-result');
+  if (!item.correct) {
+    result.style.color = '#34d399';
+    result.textContent = '🎉 정답! 역시 눈치채셨군요!';
+  } else {
+    result.style.color = '#f87171';
+    result.textContent = '❌ 아쉽! 5번이 거짓이에요. 투자 수익률 73%는 과장이랍니다 😄';
+  }
+  document.getElementById('quiz-close').style.display = 'block';
+}
 
-      // Scroll to form
-      form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+function closeQuiz() {
+  document.getElementById('quiz').classList.remove('show');
+}
 
-    function toggleDay(dateStr) {
-      let days = getReadDays();
-      days = days.includes(dateStr) ? days.filter(d => d !== dateStr) : [...days, dateStr].sort();
-      saveReadDays(days);
-      selectDate(dateStr);
-      renderCal();
-    }
+// ── DRAW FUNCTIONS ───────────────────────────────────
+function drawTile(tx, ty, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(tx * TILE, ty * TILE, TILE, TILE);
+}
 
-    function renderCal() {
-      const today = new Date();
-      if (curYear === undefined) { curYear = today.getFullYear(); curMonth = today.getMonth(); }
-
-      document.getElementById('cal-month-label').textContent =
-        new Date(curYear, curMonth, 1).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long' });
-
-      const grid = document.getElementById('cal-grid');
-      grid.innerHTML = '';
-
-      ['일','월','화','수','목','금','토'].forEach(d => {
-        const el = document.createElement('div');
-        el.className = 'cal-dow'; el.textContent = d;
-        grid.appendChild(el);
-      });
-
-      const firstDay = new Date(curYear, curMonth, 1).getDay();
-      const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
-      const readDays = getReadDays();
-      const reviews = getReviews();
-      const reviewDates = new Set(reviews.map(r => r.date));
-      const todayStr = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
-
-      for (let i = 0; i < firstDay; i++) {
-        const el = document.createElement('div');
-        el.className = 'cal-day empty-day';
-        grid.appendChild(el);
+function drawMap() {
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      const t = MAP[row][col];
+      if (t === 0) drawTile(col, row, '#1e293b');
+      else if (t === 1) {
+        drawTile(col, row, '#0f172a');
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(col*TILE+1, row*TILE+1, TILE-2, TILE-2);
       }
-
-      for (let d = 1; d <= daysInMonth; d++) {
-        const dateStr = `${curYear}-${pad(curMonth+1)}-${pad(d)}`;
-        const el = document.createElement('div');
-        el.className = 'cal-day';
-        el.textContent = d;
-        if (dateStr === todayStr) el.classList.add('today');
-        if (readDays.includes(dateStr)) el.classList.add('read');
-        if (reviewDates.has(dateStr)) el.classList.add('has-review');
-        el.onclick = () => toggleDay(dateStr);
-        grid.appendChild(el);
+      else if (t === 2) {
+        drawTile(col, row, '#14532d');
+        // grass dots
+        ctx.fillStyle = '#166534';
+        for (let d = 0; d < 3; d++) {
+          ctx.fillRect(col*TILE+4+d*8, row*TILE+4+((d*7)%18), 3, 3);
+        }
       }
-
-      const monthDays = readDays.filter(d => d.startsWith(`${curYear}-${pad(curMonth+1)}`));
-      document.getElementById('stat-month').textContent = monthDays.length;
-      document.getElementById('stat-total').textContent = readDays.length;
-      document.getElementById('stat-reviews').textContent = reviews.length;
-    }
-
-    function changeMonth(dir) {
-      curMonth += dir;
-      if (curMonth < 0) { curMonth = 11; curYear--; }
-      if (curMonth > 11) { curMonth = 0; curYear++; }
-      renderCal();
-    }
-
-    // Star rating
-    document.getElementById('star-input').addEventListener('click', e => {
-      if (!e.target.dataset.v) return;
-      selectedStars = parseInt(e.target.dataset.v);
-      document.querySelectorAll('#star-input span').forEach(s => {
-        s.classList.toggle('active', parseInt(s.dataset.v) <= selectedStars);
-      });
-    });
-
-    // Default date = today
-    document.getElementById('rv-date').value = new Date().toISOString().split('T')[0];
-
-    function submitReview() {
-      const title = document.getElementById('rv-title').value.trim();
-      const date = document.getElementById('rv-date').value;
-      const text = document.getElementById('rv-text').value.trim();
-      if (!title || !date) { alert('책 제목과 날짜는 필수예요!'); return; }
-      const reviews = getReviews();
-      reviews.unshift({ id: Date.now(), title, date, stars: selectedStars, text });
-      saveReviews(reviews);
-      document.getElementById('rv-title').value = '';
-      document.getElementById('rv-text').value = '';
-      selectedStars = 0;
-      document.querySelectorAll('#star-input span').forEach(s => s.classList.remove('active'));
-      renderReviews();
-      renderCal();
-    }
-
-    function deleteReview(id) {
-      if (!confirm('삭제할까요?')) return;
-      saveReviews(getReviews().filter(r => r.id !== id));
-      renderReviews();
-      renderCal();
-    }
-
-    function renderReviews() {
-      const reviews = getReviews();
-      const list = document.getElementById('review-list');
-      if (!list) return;
-      if (reviews.length === 0) {
-        list.innerHTML = '<p class="review-empty">아직 독서기록이 없어요. 달력에서 날짜를 클릭해 시작해보세요!</p>';
-        return;
+      else if (t === 3) {
+        drawTile(col, row, '#1e3a5f');
+        ctx.fillStyle = '#1d4ed8';
+        ctx.fillRect(col*TILE+2, row*TILE+10, TILE-4, 4);
+        ctx.fillRect(col*TILE+4, row*TILE+18, TILE-8, 4);
       }
-      list.innerHTML = '<div class="review-list">' + reviews.map(r => {
-        const dateLabel = new Date(r.date + 'T00:00:00').toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
-        const stars = r.stars ? '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars) : '';
-        const hasLongText = r.text && r.text.length > 80;
-        return `<div class="review-item">
-          <div class="review-item-header">
-            <span class="review-book-title">${r.title}</span>
-            <div class="review-meta">
-              ${stars ? `<span class="review-stars">${stars}</span>` : ''}
-              <span class="review-date">${dateLabel}</span>
-            </div>
-          </div>
-          ${r.text ? `<p class="review-text" id="rt-${r.id}">${r.text.replace(/\n/g, '<br>')}</p>` : ''}
-          <div class="review-footer">
-            ${hasLongText ? `<button class="review-expand" onclick="toggleExpand(${r.id}, this)">더 보기</button>` : '<span></span>'}
-            <button class="review-delete" onclick="deleteReview(${r.id})">삭제</button>
-          </div>
-        </div>`;
-      }).join('') + '</div>';
     }
+  }
+}
 
-    function toggleExpand(id, btn) {
-      const el = document.getElementById('rt-' + id);
-      if (!el) return;
-      el.classList.toggle('expanded');
-      btn.textContent = el.classList.contains('expanded') ? '접기' : '더 보기';
+function drawBuilding(b) {
+  const px = b.x * TILE, py = b.y * TILE;
+  const bw = b.w * TILE, bh = b.h * TILE;
+
+  // shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.fillRect(px+4, py+4, bw, bh);
+
+  // body
+  ctx.fillStyle = b.color;
+  ctx.fillRect(px, py, bw, bh);
+
+  // roof
+  ctx.fillStyle = b.roofColor;
+  ctx.fillRect(px, py, bw, TILE/2);
+
+  // door
+  ctx.fillStyle = '#0f172a';
+  const doorW = TILE * 0.6, doorH = TILE * 0.9;
+  ctx.fillRect(px + bw/2 - doorW/2, py + bh - doorH, doorW, doorH);
+
+  // windows
+  ctx.fillStyle = '#fef3c7';
+  ctx.fillRect(px + 4, py + TILE/2 + 4, TILE/2, TILE/2);
+  if (b.w >= 3) ctx.fillRect(px + bw - TILE/2 - 4, py + TILE/2 + 4, TILE/2, TILE/2);
+
+  // icon
+  ctx.font = '13px serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(b.icon, px + bw/2, py + bh + 14);
+
+  // label
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '9px monospace';
+  ctx.fillText(b.label, px + bw/2, py + bh + 24);
+}
+
+function drawPlayer() {
+  const px = player.x, py = player.y;
+  const s = TILE;
+
+  // shadow
+  ctx.fillStyle = 'rgba(0,0,0,0.25)';
+  ctx.ellipse(px + s/2, py + s + 2, s/3, 4, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  // body
+  ctx.fillStyle = '#7c3aed';
+  ctx.fillRect(px + s*0.25, py + s*0.45, s*0.5, s*0.45);
+
+  // head
+  ctx.fillStyle = '#fde68a';
+  ctx.fillRect(px + s*0.28, py + s*0.1, s*0.44, s*0.38);
+
+  // hair
+  ctx.fillStyle = '#92400e';
+  ctx.fillRect(px + s*0.25, py + s*0.08, s*0.5, s*0.14);
+  ctx.fillRect(px + s*0.22, py + s*0.14, s*0.08, s*0.2);
+
+  // eyes
+  ctx.fillStyle = '#1e293b';
+  ctx.fillRect(px + s*0.33, py + s*0.22, 3, 3);
+  ctx.fillRect(px + s*0.55, py + s*0.22, 3, 3);
+
+  // legs
+  ctx.fillStyle = '#1e3a5f';
+  ctx.fillRect(px + s*0.27, py + s*0.88, s*0.18, s*0.12);
+  ctx.fillRect(px + s*0.53, py + s*0.88, s*0.18, s*0.12);
+
+  // name tag
+  ctx.fillStyle = '#a78bfa';
+  ctx.font = 'bold 8px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('SEREN', px + s/2, py - 4);
+}
+
+// ── COLLISION ────────────────────────────────────────
+function isWalkable(nx, ny) {
+  const margin = 4;
+  const corners = [
+    [nx + margin, ny + margin],
+    [nx + TILE - margin, ny + margin],
+    [nx + margin, ny + TILE - margin],
+    [nx + TILE - margin, ny + TILE - margin],
+  ];
+  for (const [cx, cy] of corners) {
+    const col = Math.floor(cx / TILE);
+    const row = Math.floor(cy / TILE);
+    if (row < 0 || row >= ROWS || col < 0 || col >= COLS) return false;
+    const t = MAP[row][col];
+    if (t === 1 || t === 3) return false;
+    for (const b of buildings) {
+      if (cx >= b.x*TILE && cx < (b.x+b.w)*TILE &&
+          cy >= b.y*TILE && cy < (b.y+b.h)*TILE) return false;
     }
+  }
+  return true;
+}
 
-    renderReviews();
-  </script>
+// ── PROXIMITY CHECK ──────────────────────────────────
+let lastNearBuilding = null;
+let interactCooldown = 0;
+
+function checkProximity() {
+  if (interactCooldown > 0) { interactCooldown--; return; }
+  if (dialogOpen) return;
+  const px = player.x + TILE/2, py = player.y + TILE/2;
+  for (const b of buildings) {
+    const bx = b.x*TILE + b.w*TILE/2;
+    const by = b.y*TILE + b.h*TILE/2;
+    const dist = Math.hypot(px - bx, py - by);
+    if (dist < TILE * 2.2) {
+      if (lastNearBuilding !== b) {
+        lastNearBuilding = b;
+        interactCooldown = 60;
+        openDialog(b);
+      }
+      return;
+    }
+  }
+  lastNearBuilding = null;
+}
+
+// ── GLOW EFFECT ON NEARBY BUILDING ───────────────────
+function drawGlow(b) {
+  const px = player.x + TILE/2, py = player.y + TILE/2;
+  const bx = b.x*TILE + b.w*TILE/2;
+  const by = b.y*TILE + b.h*TILE/2;
+  const dist = Math.hypot(px - bx, py - by);
+  if (dist < TILE * 2.5) {
+    ctx.save();
+    ctx.globalAlpha = 0.18 + 0.08 * Math.sin(Date.now()/400);
+    ctx.fillStyle = b.roofColor;
+    ctx.fillRect(b.x*TILE - 3, b.y*TILE - 3, b.w*TILE + 6, b.h*TILE + 6);
+    ctx.restore();
+  }
+}
+
+// ── GAME LOOP ─────────────────────────────────────────
+let frame = 0;
+
+function update() {
+  if (!dialogOpen) {
+    let nx = player.x, ny = player.y;
+    if (keys['ArrowLeft']  || keys['a']) nx -= player.speed;
+    if (keys['ArrowRight'] || keys['d']) nx += player.speed;
+    if (keys['ArrowUp']    || keys['w']) ny -= player.speed;
+    if (keys['ArrowDown']  || keys['s']) ny += player.speed;
+
+    if (isWalkable(nx, player.y)) player.x = nx;
+    if (isWalkable(player.x, ny)) player.y = ny;
+
+    checkProximity();
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  drawMap();
+
+  // glow first (behind buildings)
+  for (const b of buildings) drawGlow(b);
+  for (const b of buildings) drawBuilding(b);
+
+  drawPlayer();
+
+  // floor grid overlay (subtle)
+  ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x < W; x += TILE) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += TILE) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  frame++;
+}
+
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+loop();
+</script>
 </body>
 </html>
